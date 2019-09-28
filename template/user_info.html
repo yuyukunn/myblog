@@ -1,0 +1,100 @@
+{% extends 'home.html' %}
+
+{% block title %}
+	个人资料
+{% endblock %}
+
+{% block content %}
+    <h3 style="font-size: 180%;text-align: center;margin-top: 2em;margin-bottom: 2em;" >用户信息界面</h3>
+    <hr />
+    <div style="margin-top: 3em;" class="row">
+    	<div class="col-md-3 col-md-offset-1">
+            <div class="panel panel-default">
+                <div class="panel panel-heading">用户信息</div>
+                <div class="panel panel-body">
+                    {% if user.is_authenticated %}
+                    <h3 style="color: red;margin-left: 3em;margin-bottom: 2em;">用户名：{{user}}</h3>
+                    <ul style="list-style-type: none;">
+                        <li>昵称：
+                            {{user.profile.nickname}}
+                            <a href="/user/change_nickname/">修改昵称</a>
+                        </li>
+                        <li>邮箱：
+                            {% if user.email %}
+                                {{user.email}}
+                            {% else %}
+                                未绑定 <a href="/user/bind_email/">绑定邮箱</a>
+                            {% endif %}
+                        </li>
+                        <li>上次登录时间：{{user.last_login|date:'Y-m-d H:i:s'}}</li>
+                        <li>密码：******&nbsp<a href="/user/change_password/">修改密码</a></li>
+                    </ul>
+                    {% else %}
+                        <span>未登录，跳转到首页...</span>
+                        <script type="text/javascript">
+                            alert('当前未登录，点击确定跳转至登录页面');
+                            window.location.href = '/user/login/';
+                        </script>
+                    {% endif %}
+                </div>
+            </div>	
+    	</div>
+        <div class="col-md-4 col-md-offset-3">
+            <div id="container" style="min-width: 35em;max-width:45em;height:22em;">
+        <!-- 引入 highcharts.js -->
+                <script src="http://cdn.highcharts.com.cn/highcharts/highcharts.js"></script>
+                <script src="https://code.highcharts.com.cn/highcharts/themes/dark-green.js"></script>
+               
+                <script>
+                    // 图表配置
+                    var options = {
+                        chart: {
+                            type: 'line'                          //指定图表的类型，默认是折线图（line）
+                        },
+                        title: {
+                            text: '博客阅读统计'                 // 标题
+                        },
+                        xAxis: {
+                            categories:{{date_list|safe}}
+                                },
+                        yAxis: {
+                            title: {
+                                text: null              // y 轴标题
+                            },
+                        },
+                        series: {{series|safe}},
+                        legend: { enabled:false },
+                        credits: { enabled:false },
+                        tooltip: {
+                            backgroundColor: '#FCFFC5',   // 背景颜色
+                            borderColor: 'black',         // 边框颜色
+                            borderRadius: 10,             // 边框圆角
+                            borderWidth: 3,               // 边框宽度
+                            shadow: true,                 // 是否显示阴影
+                            animation: true,               // 是否启用动画效果
+                            style: {                      // 文字内容相关样式
+                                color: "#ff0000",
+                                fontSize: "12px",
+                                fontWeight: "blod",
+                                fontFamily: "Courir new"
+                            }
+                        },
+                        plotOptions: {
+                            line: {
+                                dataLabels: {
+                                    // 开启数据标签
+                                    enabled: true          
+                                },
+                            }
+                        },
+                        
+                    };
+                    // 图表初始化函数
+                    var chart = Highcharts.chart('container', options);
+                </script>
+            </div>
+        </div>					
+    </div>     
+
+{% endblock %}
+

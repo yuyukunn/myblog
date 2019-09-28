@@ -1,0 +1,21 @@
+{% extends 'home.html' %}
+
+{% block title %}
+	{{blog_type}}博客
+{% endblock %}
+
+{% block nav-blog %}
+	active
+{% endblock %}
+
+{% block content %}
+	<div class="container">
+		<div class="row">
+			<!-- 博客主体框架 -->		
+			{% include "blog_list_box.html" %}
+			<!-- 右侧分类框 -->
+			{% include "right_classify_box.html" %}
+		</div>
+	</div>
+
+{% endblock %}

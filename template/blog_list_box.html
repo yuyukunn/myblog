@@ -1,0 +1,17 @@
+<div class="col-xs-12 col-sm-8 col-md-9">
+	<div class="panel panel-default">
+		<div class="panel-heading">{{ classify }}：{{blog_type}}{{date}}（当前位置：<a style="color: red;">{{current_page}}</a> | 共有<a style="color: red;">{{ blogs | length }}</a>篇博客）</div>
+		<div class="panel-body">
+				<!-- 博客详细信息列表 -->
+				{% include "blog_info_list.html" %}
+		</div>
+	</div>
+	<!-- 显示页面信息 -->
+	<div style="text-align: center;">
+		<nav aria-label="Page navigation">
+		  <ul style="margin-top: 0;" class="pagination">
+		    {{ show_page | safe }}
+		  </ul>
+		</nav>
+	</div>
+</div>

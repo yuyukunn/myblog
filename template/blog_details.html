@@ -1,0 +1,248 @@
+{% extends 'home.html' %}
+{% load comment_tags %}
+
+{% block title %}
+	{{blog_obj.title}}
+{% endblock %}
+
+{% block style %}
+	<style type="text/css">
+		div.comment{
+			
+			margin-top: 0.5em; 
+		}
+		div.comment h4{
+			border-top: 2px solid red;
+			margin-top: 1em; 
+			top: 2em: 
+			bottom: 2em;
+		}
+		div.comment-login{
+			margin-top:1em;
+			margin-bottom: 2em;
+		}
+		div.comment-login p{
+			margin-top:1em;
+		}
+		div.comment-content{
+			
+			margin-top: 1em; 
+		}
+		div.comment .comment-form{
+			margin-top:1em;
+			padding-top: 1em; 
+		}
+		div.comment .comment-form button{
+			margin-top: 1em;
+			margin-bottom: 1em;
+		}
+		div.content-to-comment{
+			margin-top: 2em;
+			border-top: 1.5px solid red;
+		}
+		div.content-to-comment p{
+			margin-top:1em;
+			font-weight: bold;
+			font-size: large;
+		}
+		div.comment-info img{
+			float: left;
+			margin-right: 2em;
+		}
+		div.comment-info p{
+			font-size: larger;
+		}
+		div.reply-info img{
+			float: left;
+			margin-right: 2em;
+		}
+		div.reply-info p{
+			font-size: larger;
+		}
+		div.reply-to a{
+			color: red;
+			margin-left: 4.5em;
+		}
+	</style>
+{% endblock %}
+
+{% block content %}	
+	{% block panel-body %}
+		<div class="container">
+			<div class="row">
+				<h3>{{ blog_obj.title }}</h3>
+				<div class="col-xs-12 col-sm-8 col-md-9">
+					<div style="padding: 2px 0;">
+						<p>	作者：{{ blog_obj.author }}&nbsp&nbsp
+							分类：<a href="{% url 'blog_with_type' blog_obj.blog_type_id %}">{{blog_obj.blog_type}}</a>&nbsp&nbsp发布时间：{{ blog_obj.create_time | date:'Y-m-d H:m:s' }}
+							&nbsp&nbsp阅读({{blog_obj.read_num}})
+							&nbsp&nbsp评论({% get_comment_count blog_obj %})
+						</p>
+					</div>
+					<div class="blog-details-content">
+						<p>
+							{{ blog_obj.content|safe}}
+						</p>
+					</div>
+					<div class="blog-more">
+						{% if pre_blog %}
+							<p>上一篇:&nbsp&nbsp<a href="{% url 'blog_details' pre_blog.id %}">{{pre_blog.title}}</a></p>
+						{% else %}
+							<p>上一篇:&nbsp&nbsp没有了</p>
+						{% endif %}
+
+						{% if next_blog %}
+							<p>下一篇:&nbsp&nbsp<a href="{% url 'blog_details' next_blog.id %}">{{next_blog.title}}</a></p>
+						{% else %}
+							<p>下一篇:&nbsp&nbsp没有了</p>
+						{% endif %}
+					</div>
+
+					<div class="content-to-comment"><p>评论</p></div>
+					<!-- 评论区 -->
+					<div class="comment">
+						<div class="comment-content">
+							{% get_comment_list blog_obj as comment_list %}
+							{% get_reply_list blog_obj as reply_list%}
+							<div class="comment-list">
+									{% for comment in comment_list %}
+										<div id="comment-info" class="comment-info">
+											<img src="/static/images/{{comment.img_id}}.jpg" width="50px" height="50px" class="img-circle"/>
+											<p>
+												<span style="color: black;">{{comment.user}}</span>&nbsp
+												<span style="color: #aaa;">{{comment.comment_time}}</span>
+											</p>
+											<p>{{comment.text|safe}}</p>
+											<p style="display: none">{{comment.pk}}</p>
+											<!-- <div class="reply-to"><p><a id="reply-to">回复</a></p></div> -->
+											<div style="margin-bottom: 3em;" class="divide"></div>
+										</div>
+									{% endfor %}
+								{% for reply in reply_list %}
+									<div id="reply-info" class="reply-info">
+										<img src="/static/images/{{reply.img_id}}.jpg" width="50px" height="50px" class="img-circle"/>
+										<p>
+											<span style="color: black;">{{reply.user}}</span>&nbsp
+											<span style="color: #aaa;">{{reply.comment_time}}</span>
+										</p>
+										<p>
+											<span style="color: black;float: left;">回复{{reply.parent.user}}的 </span>
+											<span style="float:right;">{{reply.parent.text|safe}} </span>
+										</p>
+										<p><span style="display: inline;">{{reply.text|safe}}</span></p>
+										<p style="display: none">{{reply.pk}}</p>
+										<div class="reply-to"><p><a id="reply-to">回复</a></p></div>
+									</div>
+								{% endfor %}
+							</div>
+							{% if user.is_authenticated %}
+								<div id="comment-form" class="comment-form">
+									{% get_comment_form blog_obj as comment_form%}
+									<form action='{% url "update_comment" %}' method="POST">
+										{% csrf_token %}
+										{{comment_form}}
+										{{comment_form.media|safe}}
+									</form>
+									<button class="btn btn-primary" id="AjaxSubmit">写评论</button>
+
+								</div>
+							{% else %}	
+								<div class="comment-login">
+									<p>
+										您尚未登录，登录后方可评论~<a href="/user/login/">登录</a>
+									</p>
+								</div>
+							{% endif %}
+						</div>
+					</div>
+
+				</div>
+			</div>
+		</div>
+	{% endblock %}
+{% endblock %}
+
+
+{% block script %}
+	<script type="text/javascript">
+		$('.django-ckeditor-widget').removeAttr('style');
+		$('.reply-to #reply-to').click(function(){
+			$('#reply').remove();
+			var speed = 500;
+			var ele = $('.django-ckeditor-widget')
+			var user = $(this).parent().parent().parent().children('p').children('span')[0].innerHTML;
+			var text = $(this).parent().parent().parent().children('p')[2].innerHTML;
+			var pk = $(this).parent().parent().parent().children('p')[4].innerHTML;
+			// 滑到富文本框并获取焦点
+			if(ele.length>0) $("html,body").animate({scrollTop:$(ele).offset().top},speed);
+			CKEDITOR.instances['id_comment_text'].focus();
+			// alert(CKEDITOR.instances['id_comment_text'].focusManager.hasFocus);
+
+			// 添加提醒用户的内容
+			var p_list = '<div id="reply" style="border:1.5px solid #ccc;font-size:larger;background-color:#ddd;"><p>回复'+'<span style="color:orange;">'+user+'</span>：<br/><span style="margin-left:2em;">“'+text+'”</span></p></div>'
+			ele.before(p_list);
+
+			// 设置定时器，setInterval（code要有引号，毫秒）
+			clock1 = setInterval("is_focus('#reply')",1000*20);
+
+			// 设置reply_comment_id
+			$('#reply_comment_id').val(pk);
+
+			return false;
+		});
+		$("#AjaxSubmit").click(function(){
+			var content_type = $('#id_content_type').val();
+			var object_id = $('#id_object_id').val();
+			var csrf_token = $('[name="csrfmiddlewaretoken"]').val();
+			var reply_comment_id = $('#reply_comment_id').val();
+			var comment_text = CKEDITOR.instances['id_comment_text'].getData().trim();
+			var img_id = Math.floor(Math.random()*19+1);
+			if (comment_text==''){
+				return false;
+			}else{
+				$.ajax({
+					url:'{% url "update_comment" %}',
+					type:'POST',
+					cache:false,
+					data:{'content_type':content_type,'object_id':object_id,'csrfmiddlewaretoken':csrf_token,'comment_text':comment_text,'reply_comment_id':reply_comment_id,'img_id':img_id},
+					success:function(data){
+				    	if(data.status){
+				    		var comment_temp='<div class="comment-info">'+'<img '+ 
+				    		'src="/static/images/'+img_id+'.jpg" width="50px" height="50px"'+
+				    		'class="img-circle"/><p>'+'<span style="color: black;">'+
+				    		data['username']+'</span>&nbsp&nbsp'+'<span style="color:#aaa;">'+
+							data['comment_time']+'</span>&nbsp';
+							var reply_temp = '<p style="display: none">{{comment.pk}}</p>'+
+							'<div class="reply-to"><p><a id="reply-to">回复</a></p></div>';
+							var divide = '<div style="margin-bottom: 3em;" class="divide"></div>'
+				    		if (reply_comment_id==0){
+				    			var comment_content = comment_temp+'<p>'+comment_text+'</p>'+divide;
+				    		}else{
+
+				    		};
+
+				    		$('.comment-list').append(comment_content);
+				    		CKEDITOR.instances['id_comment_text'].setData('');
+				    		$('#reply').remove();
+
+				    	}else{
+				    		alert(data['msg']);
+				    	}
+				    },
+				    error:function(){ 
+				     	alert('评论出错！');
+				    }
+				})
+			};
+		});
+
+		function is_focus(ele){
+			var flag = CKEDITOR.instances['id_comment_text'].focusManager.hasFocus;
+			if(!flag){
+				clearInterval(clock1); //清除js定时器
+			 	$(ele).remove();
+			}
+		}
+	</script>
+{% endblock %}
+

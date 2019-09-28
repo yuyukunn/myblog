@@ -1,0 +1,39 @@
+{% extends 'home.html' %}
+
+{% block title %}
+	我的网站|登录
+{% endblock %}
+
+{% block content %}
+	{% if user.is_authenticated %}
+		<script type="text/javascript">
+			alert('{{user}}'+'，你已经登录了~');
+			window.location.href='/';
+			$('.container').addClass('hidden');
+		</script>
+	{% else %}
+		<div class="container">
+			<div class="row">
+				<div class="col-sm-4 col-sm-offset-4">
+					<div style="margin-top: 8em;" class="panel panel-success">
+						<div class="panel-heading">
+							<h3 class="panel-title">登录</h3>
+						</div>	
+						<div class="panel-body">
+							<form action="" method="POST">
+								<input style="display: none;" type="text" name="return_to" value={{return_to}} />
+								{% csrf_token %}
+								{{login_form}}
+								<input style="margin-top: 1em;" type="submit" value="登录" class="btn btn-primary pull-left">
+								<button style="margin-top: 1em;" type="button" class="btn btn-default pull-right" onclick="window.location.href='{{return_to}}'">返回</button>
+							</form>
+							
+						</div>
+		
+					</div>
+				</div>					
+			</div>
+		</div>
+	{% endif %}
+{% endblock %}
+

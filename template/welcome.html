@@ -1,0 +1,128 @@
+{% extends 'home.html' %}
+{% block title %}
+	首页|欢迎光临
+{% endblock %}
+
+<!-- 导航条首页激活特效 -->
+{% block nav-home %}
+	active
+{% endblock %}
+
+{% block content %}
+<h3 style="font-size: 180%;text-align: center;margin-top: 2em;margin-bottom: 2em;" >        欢迎访问我的博客，请随意
+</h3>
+<hr />
+<div class="row">
+  <div class="col-md-4 col-md-offset-1">
+    <!-- 热门阅读 -->
+    <div style="text-align: center;" class="hot-data panel panel-success">
+        <div class="panel-heading">热门详情</div>
+        <div class="panel-body">
+            <h3>今天热门点击</h3>
+            {% if today_hot %}
+                <a href="{% url 'blog_details' today_hot.blog.id %}">
+                    <span style="color: red;" class="glyphicon glyphicon-fire">&nbsp{{today_hot.blog.title}}({{today_hot.readnum_date}})</span>
+                </a>
+            {% else %}
+                <p>今天没有热门博客</p>
+            {% endif %}
+
+            <h3>昨天热门点击</h3>
+            {% if yesterday_hot %}
+                <a href="{% url 'blog_details' yesterday_hot.blog.id %}">
+                    <span style="color: red;" class="glyphicon glyphicon-fire">&nbsp{{yesterday_hot.blog.title}}({{yesterday_hot.readnum_date}})</span>
+                </a>
+            {% else %}
+                <p>昨天没有热门博客</p>
+            {% endif %}
+
+            <h3>本周热门点击</h3>
+            {% for seven in sevenday_hot %}
+                <a href="{% url 'blog_details' seven.blog %}">
+                    <span style="color: red;" class="glyphicon glyphicon-fire"> {{seven.blog__title}}({{seven.read_num_sum}})</span>
+                    <br>
+                </a>
+            {% empty %}
+                <p>本周没有热门博客</p>
+            {% endfor %}
+        </div>
+    </div>
+  </div>
+  <div class="col-md-4 col-md-offset-1">
+    <!-- 图表：行业统计 -->
+    <div id="container" style="min-width:500px;height:400px;margin-top: 1em;">
+        <script src="http://cdn.highcharts.com.cn/highcharts/highcharts.js"></script>
+        <script src="http://cdn.highcharts.com.cn/highcharts/themes/sand-signika.js"></script>
+        <script type="text/javascript">
+            var title_text = '{{subtitle|safe}}';
+            var chart = Highcharts.chart('container',{
+            chart: {
+                type: 'column',
+                style: {
+                  fontFamily: "\"微软雅黑\", Arial, Helvetica, sans-serif",
+                  color: "#333",
+                  fontSize: "16px",
+                  fontWeight: "normal",
+                  fontStyle: "normal"
+                },
+            },
+            title: {
+                text: '行业统计',
+                style: {
+                fontSize: "18px",
+                fontWeight: "bold",
+                }
+            },
+            subtitle: {
+                text: title_text,
+                style: {
+                fontSize: "16px",
+                fontWeight: "bold",
+                }
+            },
+            xAxis: {
+                categories: {{xAxis|safe}},
+                crosshair: true
+            },
+            yAxis: {
+                min: 0,
+                title: {
+                    text: '金额 (亿元)',
+                }
+            },
+            legend: { enabled:false },
+            credits: { enabled:false },
+            tooltip: {
+                // head + 每个 point + footer 拼接成完整的 table
+                headerFormat: '<span style="font-size:12px">{point.key}</span><table>',
+                pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
+                '<td style="padding:0"><b>{point.y:.1f} 亿元</b></td></tr>',
+                footerFormat: '</table>',
+                shared: true,
+                useHTML: true
+            },
+            plotOptions: {
+                column: {
+                    borderWidth: 2
+                }
+            },
+            series: [{
+                name: '成交金额',
+                data: {{amount|safe}}
+            }, {
+                name: '总市值',
+                data: {{market_cap|safe}}
+            },  {
+                name: '流通市值',
+                data: {{market_equity|safe}}
+            }]
+            });
+        </script>
+    </div>
+  </div>
+</div>
+
+
+{% endblock %}
+
+

@@ -1,0 +1,30 @@
+<div class="hidden-xs col-sm-4 col-md-3">
+				<ul>
+					<div class="panel panel-success">
+					  <div class="panel-heading">博客分类</div>
+					  <div class="panel-body">
+					    {% for blog_type in blog_types %}
+							<a href="{% url 'blog_with_type' blog_type.id 1 %}">
+								<li style="list-style-type: none;">{{ blog_type.type_name }}({{blog_type.blog_set.count}})</li>
+							</a>
+						{% empty %}
+							<p>-- 暂无分类 --</p>
+						{% endfor %}
+					  </div>
+					</div>
+				</ul>
+				<ul>
+					<div class="panel panel-warning">
+					  <div class="panel-heading">日期归档</div>
+					  <div class="panel-body">
+					    {% for blog_date,blog_count in blog_dates.items %}
+							<a href="{% url 'blog_with_date' blog_date|date:'Y'  blog_date|date:'m' %}">
+								<li style="list-style-type: none;">{{ blog_date|date:'Y年m月' }}({{blog_count}})</li>
+							</a>
+						{% empty %}
+							<p>-- 暂无分类 --</p>
+						{% endfor %}
+					  </div>
+					</div>
+				</ul>
+			</div>
